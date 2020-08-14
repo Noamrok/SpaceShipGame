@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var scoreBoard = $("<div>").css({
+                "position": "absolute",
+                "width": "100%",
+                "height": "auto",
+                "top": "520px",
+                "border": "1px solid green",
+                "background-image": "url('img/gameboardback.jpg')",
+            });
+            var gameBoard = $("<div>").css({
+                "position": "relative",
+                "width": "500px",
+                "height": "500px",
+                "margin": "auto",
+                "border": "1px solid yellow",
+                "background-image": "url('img/gameboardback.jpg')",
+            }).attr({
+                "id": "gameBoard",
+            });
+            var spaceShip = $("<img>").attr({
+                "src": "img/space.png",
+                "id": "spaceShip",
+            }).css({
+                "width": "60px",
+                "height": "60px",
+                "position": "absolute",
+                "bottom": "0px",
+                "left": "100px",
+            });
+            //-------for fun
+            var spaceShip2 = $("<img>").attr({
+                "src": "img/space.png",
+                "id": "spaceShip2",
+            }).css({
+                "width": "100px",
+                "height": "100px",
+                "position": "absolute",
+                "bottom": "0px",
+                "left": "0px",
+                "transform": "rotate(90deg)",
+            });
+            setInterval(function () {
+                spaceShip2.css({ "transform": "rotate(90deg)" });
+                spaceShip2.animate({
+                    left: "1000px",
+                }, {
+                    duration: 8000,
+                    easing: "linear",
+                    complete: function () {
+                        spaceShip2.css({ "transform": "rotate(-90deg)" });
+                        spaceShip2.animate({
+                            left: "0px"
+                        }, {
+                            duration: 8000,
+                            easing: "linear",
+                        });
+                    }
+                });
+            }, 16000);
+            $("body").append(spaceShip2);
+            //--------------
+            $("body").append(scoreBoard);
+            $("body").append(gameBoard);
+            gameBoard.append(spaceShip);
+            scoreBoard.append($("#startBtn"));
+            scoreBoard.append($("#1"));
+            $("body").on("keydown", function () {
+                moveSpaceShip(event);
+            });
+        });
+        function startGame() {
+            $("#startBtn").attr({
+                "class": "w3-btn w3-blue w3-round w3-tiny w3-disabled",
+            });
+            var mobs = $("#TotalMobs").html();
+            var stopGame = setInterval(function () {
+                createMob();
+                if (mobs == 100) {
+                    clearInterval(stopGame);
+                    $(".mob").remove();
+                    alert("Your final score is: " + $("#scoreV").html());
+                    $("#scoreV").html(0);
+                    $("#startBtn").attr({
+                        "class": "w3-btn w3-blue w3-round w3-tiny",
+                    });
+                }
+                mobs++;
+                $("#TotalMobs").html(mobs);
+            }, 2000);
+        }
+        function createMob() {
+            let randPlaceX = Math.floor(Math.random() * 465) + 15;
+            let monster = $("<div>").css({
+                "height": "15px",
+                "width": "15px",
+                "border-radius": "50%",
+                "background-color": "red",
+                "bottom": "470px",
+                "position": "absolute",
+                "left": randPlaceX + "px",
+            }).attr({
+                "class": "mob",
+            });
+            $("#gameBoard").append(monster);
+            monster.animate({
+                bottom: "30px",
+            }, {
+                duration: 3000,
+                    easing: "linear",
+                complete: function () {
+                    $(this).remove();
+                },
+                progress: function () {
+                    var mobBot = parseFloat($(this).css("bottom"));
+                    var mobLeft = parseFloat($(this).css("Left"));
+                    $(".shot").each(function () {
+                        var shotBot = parseFloat($(this).css("bottom"));
+                        var shotLeft = parseFloat($(this).css("Left"));
+                        var hit = $("#scoreV").html();
+                        if (Math.abs(shotBot - mobBot) < 15 && Math.abs(shotLeft - mobLeft) < 15) {
+                            hit++;
+                            $("#scoreV").html(hit);
+                            $(this).remove();
+                            monster.remove();
+                        }
+                    });
+                }
+            });
+        }
+        function moveSpaceShip() {
+            let currentLeftLocation = parseFloat($("#spaceShip").css("left"));
+                if (window.event.keyCode == 37) {
+                    //left
+                    let x = Math.max(-10, currentLeftLocation - 10);
+                    $("#spaceShip").css("left", x + "px")
+
+                }
+                else if (window.event.keyCode == 39) {
+                    //right
+                    let x = Math.min(450, currentLeftLocation + 10);
+                    $("#spaceShip").css("left", x + "px")
+                }
+                else if (window.event.keyCode == 38) {
+                    //shot
+                    createShot();
+                }
+        }
+        function createShot() {
+            let $shot = $("<div>").attr("class", "shot");
+            $shot.css({
+                "left": parseFloat($("#spaceShip").css("left"))+22+"px",
+                "height": "15px",
+                "width": "15px",
+                "border-radius": "50%",
+                "background-color": "green",
+                "bottom": "45px",
+                "position": "absolute",
+            });
+            $("#gameBoard").append($shot);
+            $shot.animate({
+                bottom: "470px"
+            }, {
+                duration: 1000,
+                easing: "linear",
+                complete: function () {
+                    $(this).remove();
+                }
+            });
+        }
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('img/gameboardback.jpg');
+        }
+        #scoreV, #TotalMobs{
+            color:blue;
+            padding-right:10px;
+        }
+        h4{
+            color:blue;
+        }
+    </style>
+</head>
+<body>
+    <input type="button" onclick="startGame()" value="StartGame" id="startBtn" class="w3-btn w3-blue w3-round w3-tiny" />
+    <table id="1">
+        <tr>
+            <td>
+                <span style="color:blue">Score: </span><span id="scoreV">0</span>
+            </td>
+            <td>
+                <span style="color:blue">TotalMobs: </span><span id="TotalMobs">0</span>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
